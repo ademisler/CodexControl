@@ -8,13 +8,10 @@ struct CodexGaugeApp: App {
         MenuBarExtra {
             RootView(model: self.model)
         } label: {
-            HStack(spacing: 4) {
+            HStack(spacing: 0) {
                 Image(systemName: self.model.menuBarSymbol)
-                if self.model.lowQuotaCount > 0 {
-                    Text("\(self.model.lowQuotaCount)")
-                        .font(.caption2.monospacedDigit())
-                }
             }
+            .foregroundStyle(Color(nsColor: self.model.menuBarSymbolColor))
         }
         .menuBarExtraStyle(.window)
     }

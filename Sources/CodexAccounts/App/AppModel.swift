@@ -1,6 +1,13 @@
 import AppKit
 import Foundation
 
+enum MenuBarQuotaState {
+    case available
+    case unavailable
+    case unresolved
+    case empty
+}
+
 @MainActor
 final class AppModel: ObservableObject {
     @Published private(set) var accounts: [StoredAccount] = []
@@ -110,25 +117,57 @@ final class AppModel: ObservableObject {
         }.count
     }
 
-    var healthyCount: Int {
-        max(0, self.accountCount - self.lowQuotaCount)
+    var usableQuotaCount: Int {
+        self.accounts.filter {
+            self.runtimeStates[$0.id]?.snapshot?.hasUsableQuotaNow == true
+        }.count
     }
 
-    var menuBarLabel: String {
-        if self.lowQuotaCount > 0 {
-            return "!\(self.lowQuotaCount)"
+    var menuBarQuotaState: MenuBarQuotaState {
+        guard !self.accounts.isEmpty else {
+            return .empty
         }
-        return "\(self.accountCount)"
+
+        if self.usableQuotaCount > 0 {
+            return .available
+        }
+
+        let exhaustedCount = self.accounts.filter {
+            if let snapshot = self.runtimeStates[$0.id]?.snapshot {
+                return !snapshot.hasUsableQuotaNow
+            }
+            return false
+        }.count
+
+        if exhaustedCount == self.accountCount {
+            return .unavailable
+        }
+
+        return .unresolved
     }
 
     var menuBarSymbol: String {
-        if self.lowQuotaCount > 0 {
-            return "exclamationmark.circle.fill"
+        switch self.menuBarQuotaState {
+        case .available:
+            return "checkmark.circle.fill"
+        case .unavailable:
+            return "exclamationmark.triangle.fill"
+        case .unresolved:
+            return self.isRefreshingAll ? "arrow.triangle.2.circlepath" : "ellipsis.circle.fill"
+        case .empty:
+            return "circle.grid.2x1.fill"
         }
-        if self.isRefreshingAll {
-            return "arrow.triangle.2.circlepath"
+    }
+
+    var menuBarSymbolColor: NSColor {
+        switch self.menuBarQuotaState {
+        case .available:
+            return .systemGreen
+        case .unavailable:
+            return .systemOrange
+        case .unresolved, .empty:
+            return .secondaryLabelColor
         }
-        return "circle.grid.2x1.fill"
     }
 
     func runtimeState(for accountID: UUID) -> AccountRuntimeState {

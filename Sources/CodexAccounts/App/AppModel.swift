@@ -164,7 +164,7 @@ final class AppModel: ObservableObject {
         case .available:
             return .systemGreen
         case .unavailable:
-            return .systemOrange
+            return .systemRed
         case .unresolved, .empty:
             return .secondaryLabelColor
         }

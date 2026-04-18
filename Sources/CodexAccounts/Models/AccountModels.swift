@@ -45,6 +45,7 @@ struct StoredAccount: Codable, Identifiable, Hashable, Sendable {
     let id: UUID
     var nickname: String?
     var emailHint: String?
+    var authSubject: String?
     var providerAccountID: String?
     var codexHomePath: String
     var source: StoredAccountSource
@@ -66,13 +67,16 @@ struct StoredAccount: Codable, Identifiable, Hashable, Sendable {
         Self.normalizeEmail(self.emailHint)
     }
 
+    var normalizedAuthSubject: String? {
+        Self.normalizeIdentifier(self.authSubject)
+    }
+
     var standardizedHomePath: String {
         URL(fileURLWithPath: self.codexHomePath, isDirectory: true).standardizedFileURL.path
     }
 
     func matches(_ other: StoredAccount) -> Bool {
-        if let providerAccountID, let otherProviderAccountID = other.providerAccountID,
-           providerAccountID == otherProviderAccountID
+        if let normalizedAuthSubject, normalizedAuthSubject == other.normalizedAuthSubject
         {
             return true
         }
@@ -106,6 +110,15 @@ struct StoredAccount: Codable, Identifiable, Hashable, Sendable {
         }
 
         if shouldPreferOtherIdentity,
+           let authSubject = other.authSubject?.trimmingCharacters(in: .whitespacesAndNewlines),
+           !authSubject.isEmpty
+        {
+            self.authSubject = authSubject
+        } else if self.authSubject == nil || self.authSubject?.isEmpty == true {
+            self.authSubject = other.authSubject
+        }
+
+        if shouldPreferOtherIdentity,
            let providerAccountID = other.providerAccountID?.trimmingCharacters(in: .whitespacesAndNewlines),
            !providerAccountID.isEmpty
         {
@@ -136,6 +149,10 @@ struct StoredAccount: Codable, Identifiable, Hashable, Sendable {
     }
 
     static func normalizeEmail(_ value: String?) -> String? {
+        Self.normalizeIdentifier(value)
+    }
+
+    static func normalizeIdentifier(_ value: String?) -> String? {
         guard let value = value?.trimmingCharacters(in: .whitespacesAndNewlines), !value.isEmpty else {
             return nil
         }
@@ -270,7 +287,17 @@ struct UsageWindowSnapshot: Codable, Sendable {
         return resetAt.formatted(Self.resetAtFormat)
     }
 
+    var compactResetAtDisplay: String? {
+        guard let resetAt else { return nil }
+        return resetAt.formatted(Self.compactResetAtFormat)
+    }
+
     private static let resetAtFormat = Date.FormatStyle(date: .abbreviated, time: .shortened)
+    private static let compactResetAtFormat = Date.FormatStyle()
+        .month(.abbreviated)
+        .day()
+        .hour(.defaultDigits(amPM: .omitted))
+        .minute(.twoDigits)
 }
 
 struct CreditsBalanceSnapshot: Codable, Sendable {

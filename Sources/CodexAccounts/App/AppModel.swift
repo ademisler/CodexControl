@@ -43,6 +43,7 @@ final class AppModel: ObservableObject {
             let haystacks = [
                 account.displayName,
                 account.emailHint ?? "",
+                account.authSubject ?? "",
                 account.providerAccountID ?? "",
                 account.codexHomePath,
             ]

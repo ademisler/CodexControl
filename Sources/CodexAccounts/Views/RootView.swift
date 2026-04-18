@@ -102,7 +102,7 @@ struct RootView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
             ScrollView {
-                LazyVStack(spacing: 8) {
+                LazyVStack(spacing: 10) {
                     ForEach(self.model.filteredAccounts) { account in
                         let isSelected = self.model.selectedAccountID == account.id
                         let nextSelection = isSelected ? nil : account.id
@@ -122,7 +122,7 @@ struct RootView: View {
                             onRemove: { self.model.requestRemoval(of: account) })
                     }
                 }
-                .padding(.vertical, 2)
+                .padding(.vertical, 4)
             }
         }
     }

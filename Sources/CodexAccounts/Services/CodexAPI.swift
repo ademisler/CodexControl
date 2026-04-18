@@ -2,6 +2,7 @@ import Foundation
 
 struct AuthBackedIdentity: Sendable {
     let email: String?
+    let authSubject: String?
     let plan: String?
     let providerAccountID: String?
 }
@@ -133,6 +134,7 @@ enum CodexAPI {
         let profile = payload?["https://api.openai.com/profile"] as? [String: Any]
 
         let email = self.normalizeString((payload?["email"] as? String) ?? (profile?["email"] as? String))
+        let authSubject = self.normalizeString(payload?["sub"] as? String)
         let plan = self.normalizeString(
             (auth?["chatgpt_plan_type"] as? String) ?? (payload?["chatgpt_plan_type"] as? String))
         let providerAccountID = self.normalizeString(
@@ -140,7 +142,7 @@ enum CodexAPI {
                 ?? (auth?["chatgpt_account_id"] as? String)
                 ?? (payload?["chatgpt_account_id"] as? String))
 
-        return AuthBackedIdentity(email: email, plan: plan, providerAccountID: providerAccountID)
+        return AuthBackedIdentity(email: email, authSubject: authSubject, plan: plan, providerAccountID: providerAccountID)
     }
 
     static func fetchSnapshot(for account: StoredAccount) async throws -> AccountUsageSnapshot {

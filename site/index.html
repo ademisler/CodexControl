@@ -3,13 +3,17 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>CodexControl | Codex quota tracking and account switching</title>
+    <title>CodexControl | Live Codex quota tracker and account switcher</title>
     <meta
       name="description"
-      content="CodexControl is a local-first desktop app for tracking live OpenAI Codex quotas, exact reset times, and switching between Codex accounts on macOS and Windows."
+      content="CodexControl is a local-first desktop app for tracking live Codex quotas, exact 5-hour and 7-day reset times, and switching between Codex accounts on macOS and Windows."
     >
     <meta
       name="robots"
+      content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"
+    >
+    <meta
+      name="googlebot"
       content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"
     >
     <meta name="theme-color" content="#0b1015">
@@ -18,6 +22,8 @@
     <meta name="format-detection" content="telephone=no">
     <meta name="author" content="CodexControl">
     <link rel="canonical" href="https://codexcontrol.app/">
+    <link rel="alternate" hreflang="en" href="https://codexcontrol.app/">
+    <link rel="alternate" hreflang="x-default" href="https://codexcontrol.app/">
     <link rel="icon" href="/favicon.svg?v=brand2" type="image/svg+xml">
     <link rel="manifest" href="/site.webmanifest">
     <link rel="stylesheet" href="/styles.css">
@@ -26,22 +32,25 @@
     <meta property="og:site_name" content="CodexControl">
     <meta property="og:locale" content="en_US">
     <meta property="og:url" content="https://codexcontrol.app/">
-    <meta property="og:title" content="CodexControl | Codex quota tracking and account switching">
+    <meta property="og:title" content="CodexControl | Live Codex quota tracker and account switcher">
     <meta
       property="og:description"
-      content="Track live Codex quotas, exact reset times, and switch accounts locally without browser-driven overhead."
+      content="Track live Codex quotas, exact 5-hour and 7-day reset times, and switch accounts locally without browser-driven overhead."
     >
     <meta property="og:image" content="https://codexcontrol.app/assets/codexcontrol-og.png?v=1.1.0">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="CodexControl interface showing Codex account quota tracking and account switching">
+    <meta property="og:updated_time" content="2026-04-19T11:10:00+02:00">
 
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="CodexControl | Codex quota tracking and account switching">
+    <meta name="twitter:title" content="CodexControl | Live Codex quota tracker and account switcher">
     <meta
       name="twitter:description"
-      content="Local-first desktop app for live Codex quota tracking, reset windows, and one-click account switching."
+      content="Local-first desktop app for live Codex quota tracking, independent reset windows, and one-click account switching."
     >
     <meta name="twitter:image" content="https://codexcontrol.app/assets/codexcontrol-og.png?v=1.1.0">
+    <meta name="twitter:image:alt" content="CodexControl interface showing Codex account quota tracking and account switching">
 
     <script type="application/ld+json">
       {
@@ -50,11 +59,22 @@
         "name": "CodexControl",
         "applicationCategory": "DeveloperApplication",
         "operatingSystem": "macOS, Windows",
+        "inLanguage": "en",
+        "isAccessibleForFree": true,
         "url": "https://codexcontrol.app/",
         "downloadUrl": "https://github.com/ademisler/CodexControl",
         "softwareVersion": "1.1.0",
-        "description": "Local-first desktop app for live OpenAI Codex quota tracking, exact reset times, and account switching.",
+        "description": "Local-first desktop app for live Codex quota tracking, exact reset times, and account switching.",
         "image": "https://codexcontrol.app/assets/codexcontrol-og.png?v=1.1.0",
+        "screenshot": "https://codexcontrol.app/assets/codexcontrol-demo-ui.png",
+        "featureList": [
+          "Live Codex quota tracking",
+          "Independent 5-hour and 7-day windows",
+          "Exact reset timestamps",
+          "Local account switching",
+          "macOS menu bar app",
+          "Windows tray app"
+        ],
         "author": {
           "@type": "Person",
           "name": "ademisler"
@@ -66,6 +86,54 @@
         },
         "sameAs": [
           "https://github.com/ademisler/CodexControl"
+        ]
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "How accurate are CodexControl quota readings?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "CodexControl reads quota windows from the same authenticated OpenAI account state the local Codex client uses. It keeps 5-hour and 7-day windows separate, avoids browser dashboard scraping, and refreshes live data on a recurring interval as well as on manual refresh."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Why can the 5-hour window be exhausted while the weekly window still has capacity?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Paid and team accounts can expose multiple quota windows at once. A short 5-hour window may be depleted even while the broader 7-day window still has remaining capacity. CodexControl treats those windows independently so the weekly state is not incorrectly marked as empty."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What happens when I switch accounts?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "On macOS, CodexControl switches the active local Codex identity and restarts the desktop app so the new account becomes effective. On Windows, the tray app updates the active local account state for the installed Codex environment."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does CodexControl upload account tokens or snapshots?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. CodexControl is local-first. Auth data, account homes, and stored snapshots stay on the device. The public repository and website use demo assets only."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How often does the app refresh quota data?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "The app refreshes quota state automatically every five minutes and also supports a manual refresh path when you need the newest available state immediately."
+            }
+          }
         ]
       }
     </script>
@@ -278,24 +346,36 @@
           </div>
         </section>
 
-        <section class="section faq">
+        <section class="section faq" id="faq">
           <div class="section-head">
             <p class="eyebrow">FAQ</p>
-            <h2>Questions people usually ask first</h2>
+            <h2>Technical questions that matter in daily use</h2>
           </div>
 
           <div class="faq-list">
             <details open>
-              <summary>Does the app depend on CodexBar?</summary>
-              <p>No. CodexControl is a separate app with its own runtime, storage, and quota-fetching logic.</p>
+              <summary>How accurate are CodexControl quota readings?</summary>
+              <p>CodexControl reads quota windows from the authenticated local OpenAI account state that your Codex client already uses. It keeps short and weekly windows independent, avoids browser dashboard scraping, and refreshes live state on schedule as well as on manual refresh.</p>
             </details>
             <details>
-              <summary>Does it upload my account data anywhere?</summary>
-              <p>No. The app is local-first. It reads local account state and requests quota data directly from OpenAI.</p>
+              <summary>Why can the 5-hour window be empty while the 7-day window still has quota?</summary>
+              <p>Paid and team accounts can expose multiple quota windows at the same time. A 5-hour window can be exhausted even while the 7-day window still has remaining capacity. CodexControl models those windows separately so the weekly state stays accurate.</p>
             </details>
             <details>
-              <summary>Which platforms are supported?</summary>
-              <p>The repository ships a native macOS menu bar app and a Windows tray implementation.</p>
+              <summary>What exactly happens when I switch accounts?</summary>
+              <p>On macOS, CodexControl switches the active local Codex identity and restarts the desktop app so the new account becomes effective immediately. On Windows, the tray app updates the active local account state for the installed Codex environment.</p>
+            </details>
+            <details>
+              <summary>Does CodexControl upload tokens, account homes, or stored snapshots?</summary>
+              <p>No. The app is local-first. Auth data, managed account homes, and stored snapshots remain on the device. Public screenshots and website assets use demo data only.</p>
+            </details>
+            <details>
+              <summary>How often does the app refresh quota data?</summary>
+              <p>CodexControl refreshes quota state automatically every five minutes and also supports a manual refresh path when you want the newest available state immediately.</p>
+            </details>
+            <details>
+              <summary>Which platforms are supported today?</summary>
+              <p>The project ships a native macOS menu bar application and a Windows tray application, both focused on live Codex quota tracking and local account switching.</p>
             </details>
           </div>
         </section>

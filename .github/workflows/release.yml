@@ -18,7 +18,7 @@ jobs:
         run: |
           TAG="${GITHUB_REF_NAME}"
           TITLE="CodexControl ${TAG#v}"
-          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --title "$TITLE" --generate-notes
+          gh release view "$TAG" --repo ademisler/CodexControl >/dev/null 2>&1 || gh release create "$TAG" --repo ademisler/CodexControl --title "$TITLE" --generate-notes
 
   macos-release:
     needs: prepare-release

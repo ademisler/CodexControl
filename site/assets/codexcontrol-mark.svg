@@ -1,31 +1,40 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
   <title id="title">CodexControl mark</title>
-  <desc id="desc">Rounded square mark with a CodexControl control-ring glyph.</desc>
+  <desc id="desc">Rounded square mark with an orbit dial glyph.</desc>
   <defs>
     <linearGradient id="panel" x1="11" y1="8" x2="53" y2="58" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#9cb8ff"/>
-      <stop offset="0.45" stop-color="#7d9dff"/>
-      <stop offset="1" stop-color="#5677ff"/>
+      <stop offset="0" stop-color="#afc4ff"/>
+      <stop offset="0.48" stop-color="#86a6ff"/>
+      <stop offset="1" stop-color="#5c7cff"/>
     </linearGradient>
-    <linearGradient id="shine" x1="19" y1="12" x2="49" y2="30" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="rgba(255,255,255,0.95)"/>
-      <stop offset="1" stop-color="rgba(255,255,255,0)"/>
-    </linearGradient>
+    <radialGradient id="coreGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(34 30) rotate(90) scale(20)">
+      <stop offset="0" stop-color="#cce0ff" stop-opacity=".36"/>
+      <stop offset="1" stop-color="#cce0ff" stop-opacity="0"/>
+    </radialGradient>
   </defs>
   <rect x="7" y="7" width="50" height="50" rx="16" fill="url(#panel)"/>
-  <path d="M16 8.5h31c5.5 0 9.5 4 9.5 9.5v1.5c-4.5-4.7-10.7-7.4-17.7-7.4-8.1 0-15.3 3.4-20.8 10.3V18c0-5.5 4-9.5 9.5-9.5Z" fill="url(#shine)" opacity=".2"/>
-  <path
-    d="M43.5 19.2c-2.9-3-7-4.7-11.6-4.7-9.2 0-15.8 6.5-15.8 15.6 0 9.2 6.6 15.7 15.8 15.7 4.6 0 8.7-1.7 11.6-4.8"
+  <circle cx="32" cy="32" r="18" fill="url(#coreGlow)"/>
+  <circle
+    cx="32"
+    cy="32"
+    r="15.5"
     fill="none"
-    stroke="#091122"
+    stroke="#0a1325"
     stroke-linecap="round"
-    stroke-width="7.2"
+    stroke-width="6.4"
   />
-  <path
-    d="M43.6 17v11.7"
+  <circle
+    cx="32"
+    cy="32"
+    r="15.5"
     fill="none"
-    stroke="#091122"
+    stroke="#7fe1a2"
+    stroke-dasharray="33 96"
     stroke-linecap="round"
-    stroke-width="6"
+    stroke-width="6.4"
+    transform="rotate(-58 32 32)"
   />
+  <circle cx="32" cy="32" r="6.1" fill="#0a1325"/>
+  <circle cx="32" cy="32" r="2.35" fill="#7fe1a2"/>
+  <circle cx="44.9" cy="23.4" r="3.15" fill="#0a1325"/>
 </svg>

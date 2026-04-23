@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import os
 import shutil
 import signal
@@ -9,11 +10,18 @@ import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 from . import codex_binary_locator
 from .codex_api import AuthBackedIdentity, CodexApiError, load_identity
-from .file_locations import AMBIENT_CODEX_HOME, AUTH_BACKUPS_DIRECTORY, MANAGED_HOMES_DIRECTORY, ensure_directories
+from .file_locations import (
+    AMBIENT_CODEX_HOME,
+    AUTH_BACKUPS_DIRECTORY,
+    DESKTOP_SESSION_SNAPSHOT_DIRECTORY_NAME,
+    MANAGED_HOMES_DIRECTORY,
+    codex_desktop_session_root,
+    ensure_directories,
+)
 from .models import StoredAccount, StoredAccountSource, utc_now
 
 
@@ -32,6 +40,9 @@ class CodexSwitchResult:
     materialized_account: StoredAccount | None
     backup_path: str | None
     ambient_account: StoredAccount | None
+    desktop_session_backup_path: str | None
+    desktop_session_restore_path: str | None
+    desktop_session_restore_exists: bool
 
 
 class ManagedLoginProcess:
@@ -235,18 +246,37 @@ class CodexAccountManager:
             raise CodexAccountManagerError("The selected account does not contain `auth.json`.")
 
         ambient_account = self.discover_ambient_account(existing)
+        session_root = codex_desktop_session_root()
         materialized_account: StoredAccount | None = None
         if ambient_account is not None and ambient_account.source is StoredAccountSource.AMBIENT and not ambient_account.matches(target):
             materialized_account = self.materialize_as_managed(ambient_account)
 
+        desktop_session_backup_path: str | None = None
+        desktop_session_restore_path: str | None = None
+        desktop_session_restore_exists = False
+        if session_root is not None:
+            if materialized_account is not None:
+                desktop_session_backup_path = str(self._desktop_session_snapshot_path(materialized_account.codex_home_path))
+
+            desktop_session_snapshot_path = self._desktop_session_snapshot_path(target.codex_home_path)
+            desktop_session_restore_path = str(desktop_session_snapshot_path)
+            desktop_session_restore_exists = _path_has_children(desktop_session_snapshot_path)
+
         AMBIENT_CODEX_HOME.mkdir(parents=True, exist_ok=True)
         backup_path = self._backup_ambient_auth()
         shutil.copy2(target_auth_path, AMBIENT_CODEX_HOME / "auth.json")
+        self._sync_ambient_global_state(
+            previous_account_id=ambient_account.provider_account_id if ambient_account is not None else None,
+            target_account_id=self._target_account_id(target),
+        )
 
         return CodexSwitchResult(
             materialized_account=materialized_account,
             backup_path=backup_path,
             ambient_account=self.discover_ambient_account(existing),
+            desktop_session_backup_path=desktop_session_backup_path,
+            desktop_session_restore_path=desktop_session_restore_path,
+            desktop_session_restore_exists=desktop_session_restore_exists,
         )
 
     def materialize_as_managed(self, account: StoredAccount) -> StoredAccount:
@@ -283,6 +313,64 @@ class CodexAccountManager:
         backup_path = AUTH_BACKUPS_DIRECTORY / f"ambient-auth-{_timestamp_slug()}.json"
         shutil.copy2(auth_path, backup_path)
         return str(backup_path)
+
+    def _target_account_id(self, target: StoredAccount) -> str | None:
+        if target.provider_account_id:
+            return target.provider_account_id
+
+        try:
+            identity = load_identity(target.codex_home_path)
+        except CodexApiError:
+            return None
+
+        return identity.provider_account_id
+
+    def _desktop_session_snapshot_path(self, home_path: str | Path) -> Path:
+        return Path(home_path) / DESKTOP_SESSION_SNAPSHOT_DIRECTORY_NAME
+
+    def _sync_ambient_global_state(self, previous_account_id: str | None, target_account_id: str | None) -> None:
+        if not target_account_id:
+            return
+
+        for file_name in (".codex-global-state.json", ".codex-global-state.json.bak"):
+            self._rewrite_creator_id(
+                AMBIENT_CODEX_HOME / file_name,
+                previous_account_id=previous_account_id,
+                target_account_id=target_account_id,
+            )
+
+    def _rewrite_creator_id(
+        self,
+        path: Path,
+        previous_account_id: str | None,
+        target_account_id: str,
+    ) -> None:
+        if not path.exists():
+            return
+
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return
+
+        if not isinstance(payload, dict):
+            return
+
+        atom_state = payload.get("electron-persisted-atom-state")
+        if not isinstance(atom_state, dict):
+            return
+
+        environment = atom_state.get("environment")
+        if not isinstance(environment, dict):
+            return
+
+        creator_id = environment.get("creator_id")
+        updated_creator_id = _updated_creator_id(creator_id, previous_account_id, target_account_id)
+        if updated_creator_id is None or updated_creator_id == creator_id:
+            return
+
+        environment["creator_id"] = updated_creator_id
+        path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
 
     def _authenticate_account(
         self,
@@ -408,6 +496,54 @@ def _read_remaining_output(process: subprocess.Popen[str]) -> tuple[str, str]:
 def _directory_timestamp(path: Path):
     stat = path.stat()
     return datetime.fromtimestamp(stat.st_mtime, tz=timezone.utc)
+
+
+def _updated_creator_id(
+    creator_id: object,
+    previous_account_id: str | None,
+    target_account_id: str,
+) -> str | None:
+    if not isinstance(creator_id, str):
+        return None
+
+    normalized = creator_id.strip()
+    if not normalized:
+        return None
+
+    if normalized == target_account_id or normalized.endswith(f"__{target_account_id}"):
+        return normalized
+
+    if previous_account_id and previous_account_id in normalized:
+        return normalized.replace(previous_account_id, target_account_id)
+
+    if _looks_like_uuid(normalized):
+        return target_account_id
+
+    if "__" in normalized:
+        prefix, suffix = normalized.rsplit("__", maxsplit=1)
+        if _looks_like_uuid(suffix):
+            return f"{prefix}__{target_account_id}"
+
+    return None
+
+
+def _looks_like_uuid(value: str) -> bool:
+    try:
+        UUID(value)
+    except (TypeError, ValueError):
+        return False
+    return True
+
+
+def _path_has_children(path: Path) -> bool:
+    if not path.exists() or not path.is_dir():
+        return False
+
+    try:
+        next(path.iterdir())
+    except (OSError, StopIteration):
+        return False
+    return True
 
 
 def _timestamp_slug() -> str:

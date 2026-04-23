@@ -72,7 +72,7 @@ CodexControl is intentionally narrower:
 | Live quota reads | Fetches Codex quota windows directly from OpenAI using each account's local auth state |
 | 5-hour and 7-day windows | Preserves per-window usage independently when both windows are available |
 | Exact reset times | Shows when each quota window refills |
-| Active account switching | Replaces the ambient `~/.codex` session with the selected account |
+| Active account switching | Replaces the ambient `~/.codex` session with the selected account and refreshes desktop state where required |
 | Reauthentication | Refreshes a saved account without rebuilding the account list |
 | Local account management | Add, remove, relabel, refresh, and open account folders from the app |
 | Periodic refresh | Rechecks all accounts every 5 minutes |
@@ -84,6 +84,7 @@ CodexControl is intentionally narrower:
 3. It requests quota data directly from OpenAI.
 4. It keeps the account list sorted by practical usefulness, so usable accounts stay on top.
 5. When you switch accounts, it updates the ambient Codex session and restarts Codex Desktop to apply the new identity.
+6. On Windows, it also syncs Codex global state and preserves/restores Codex Desktop session state for the account being switched.
 
 ## Accuracy Approach
 
@@ -129,6 +130,8 @@ Migration from previous local app directories is automatic.
 - Lives under [`windows`](./windows)
 - Uses Python with a tray-first workflow
 - Includes add account, refresh, reauthenticate, switch, and install scripts
+- Switches accounts by updating `auth.json`, Codex global state, and the Codex Desktop MSIX session cache
+- Detailed switch fix notes live in [`windows/ACCOUNT_SWITCH_FIX.md`](./windows/ACCOUNT_SWITCH_FIX.md)
 
 ## Website
 

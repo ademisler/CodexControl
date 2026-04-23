@@ -596,15 +596,25 @@ class CodexControlWindowsApp:
                     self.root.after_cancel(self._restart_desktop_job)
                 except tk.TclError:
                     pass
-            self._restart_desktop_job = self.root.after(250, self._restart_codex_desktop)
+            self._restart_desktop_job = self.root.after(
+                250,
+                lambda result=result: self._restart_codex_desktop(result),
+            )
         except CodexAccountManagerError as error:
             self.status_message = str(error)
             self._render()
 
-    def _restart_codex_desktop(self) -> None:
+    def _restart_codex_desktop(self, result: Any = None) -> None:
         self._restart_desktop_job = None
         try:
-            restart_codex_desktop()
+            restart_codex_desktop(
+                backup_destination=Path(result.desktop_session_backup_path)
+                if result and result.desktop_session_backup_path
+                else None,
+                restore_source=Path(result.desktop_session_restore_path)
+                if result and result.desktop_session_restore_path
+                else None,
+            )
         except CodexDesktopControlError as error:
             self.status_message = str(error)
             self._render()

@@ -18,6 +18,14 @@ swift build
 PYTHONPATH=windows python3 -m unittest discover -s windows/tests -v
 ```
 
+If the local Python environment is missing Windows dependencies, use an isolated environment:
+
+```bash
+python3 -m venv .tmp/codexcontrol-venv
+.tmp/codexcontrol-venv/bin/python -m pip install -r windows/requirements.txt
+PYTHONPATH=windows .tmp/codexcontrol-venv/bin/python -m unittest discover -s windows/tests -v
+```
+
 If the website changed:
 
 ```bash
@@ -52,7 +60,7 @@ This writes:
 
 ## GitHub Release Workflow
 
-Pushing a tag such as `v1.1.2` triggers `.github/workflows/release.yml`.
+Pushing a tag such as `v1.1.3` triggers `.github/workflows/release.yml`.
 
 That workflow:
 
@@ -113,4 +121,4 @@ Before tagging:
 
 - scan for real tokens, emails, and local paths
 - confirm screenshots still use synthetic demo accounts
-- confirm no `auth.json`, snapshots, or managed-home data entered the tree
+- confirm no `auth.json`, snapshots, desktop session snapshots, or managed-home data entered the tree

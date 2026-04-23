@@ -38,11 +38,11 @@ python -m unittest discover -s windows/tests -v
 - Prefer synthetic demo data for UI assets and documentation.
 - Reuse the shared logo and mark assets under [`site/assets`](./site/assets) instead of creating ad-hoc variants.
 - If you touch quota logic, include the exact scenario you validated.
-- If you touch switching logic, describe the expected desktop restart behavior.
+- If you touch switching logic, describe the expected desktop restart behavior and any platform-specific global state or session cache handling.
 
 ## Before Opening a PR
 
 - Build the macOS app successfully.
 - Run Windows tests in an isolated environment if you changed the Windows implementation.
 - Regenerate release artifacts if you changed packaging or release-facing assets.
-- Re-check the repository for absolute local paths, real customer emails, or token-like strings.
+- Re-check the repository for absolute local paths, real customer emails, token-like strings, or live desktop session snapshots.

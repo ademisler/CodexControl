@@ -9,6 +9,7 @@ Security-sensitive areas include:
 - token refresh and quota fetch logic
 - account switching and ambient session replacement
 - desktop restart helpers
+- Windows Codex Desktop session backup and restore helpers
 - repository hygiene around screenshots, docs, and sample data
 
 ## Reporting a Vulnerability
@@ -18,6 +19,7 @@ Please do not open a public issue with:
 - tokens
 - `auth.json` contents
 - snapshots
+- desktop session snapshots
 - private file paths
 - screenshots that reveal real accounts
 
@@ -27,5 +29,6 @@ Use GitHub private security reporting if available for the repository. If privat
 
 - Never commit real `auth.json` files.
 - Never commit live account snapshots.
+- Never commit live Codex Desktop session snapshots.
 - Never commit screenshots with real account identities.
 - Prefer synthetic demo data for docs and UI examples.

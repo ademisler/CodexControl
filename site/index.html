@@ -37,11 +37,11 @@
       property="og:description"
       content="Track live Codex quotas, exact 5-hour and 7-day reset times, and switch accounts locally without browser-driven overhead."
     >
-    <meta property="og:image" content="https://codexcontrol.app/assets/codexcontrol-og.png?v=1.1.2">
+    <meta property="og:image" content="https://codexcontrol.app/assets/codexcontrol-og.png?v=1.1.3">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="CodexControl interface showing Codex account quota tracking and account switching">
-    <meta property="og:updated_time" content="2026-04-19T21:05:00+02:00">
+    <meta property="og:updated_time" content="2026-04-23T00:00:00+02:00">
 
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="CodexControl | Live Codex quota tracker and account switcher">
@@ -49,7 +49,7 @@
       name="twitter:description"
       content="Local-first desktop app for live Codex quota tracking, independent reset windows, and one-click account switching."
     >
-    <meta name="twitter:image" content="https://codexcontrol.app/assets/codexcontrol-og.png?v=1.1.2">
+    <meta name="twitter:image" content="https://codexcontrol.app/assets/codexcontrol-og.png?v=1.1.3">
     <meta name="twitter:image:alt" content="CodexControl interface showing Codex account quota tracking and account switching">
 
     <script type="application/ld+json">
@@ -63,15 +63,16 @@
         "isAccessibleForFree": true,
         "url": "https://codexcontrol.app/",
         "downloadUrl": "https://github.com/ademisler/codexcontrol/releases/latest",
-        "softwareVersion": "1.1.2",
+        "softwareVersion": "1.1.3",
         "description": "Local-first desktop app for live Codex quota tracking, exact reset times, and account switching.",
-        "image": "https://codexcontrol.app/assets/codexcontrol-og.png?v=1.1.2",
+        "image": "https://codexcontrol.app/assets/codexcontrol-og.png?v=1.1.3",
         "screenshot": "https://codexcontrol.app/assets/codexcontrol-demo-ui.png",
         "featureList": [
           "Live Codex quota tracking",
           "Independent 5-hour and 7-day windows",
           "Exact reset timestamps",
           "Local account switching",
+          "Windows Codex Desktop session handoff",
           "macOS menu bar app",
           "Windows tray app"
         ],
@@ -115,7 +116,7 @@
             "name": "What happens when I switch accounts?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "On macOS, CodexControl switches the active local Codex identity and restarts the desktop app so the new account becomes effective. On Windows, the tray app updates the active local account state for the installed Codex environment."
+              "text": "On macOS, CodexControl switches the active local Codex identity and restarts the desktop app so the new account becomes effective. On Windows, the tray app updates auth state, syncs Codex global state, and backs up or restores Codex Desktop session state during restart."
             }
           },
           {
@@ -255,7 +256,7 @@
                 </span>
                 <span class="install-label">Direct Release</span>
               </div>
-              <p><a href="https://github.com/ademisler/codexcontrol/releases/tag/v1.1.2">Download CodexControl 1.1.2</a></p>
+              <p><a href="https://github.com/ademisler/codexcontrol/releases/tag/v1.1.3">Download CodexControl 1.1.3</a></p>
             </article>
           </div>
         </section>
@@ -295,8 +296,8 @@
             <article class="feature-card">
               <h3>Active account switching</h3>
               <p>
-                Switches the local Codex identity and restarts the desktop app on macOS so the
-                new session becomes effective immediately.
+                Switches the local Codex identity and restarts the desktop app. On Windows it also
+                syncs Codex global state and preserves desktop session state across accounts.
               </p>
             </article>
             <article class="feature-card">
@@ -363,7 +364,7 @@
             </details>
             <details>
               <summary>What exactly happens when I switch accounts?</summary>
-              <p>On macOS, CodexControl switches the active local Codex identity and restarts the desktop app so the new account becomes effective immediately. On Windows, the tray app updates the active local account state for the installed Codex environment.</p>
+              <p>On macOS, CodexControl switches the active local Codex identity and restarts the desktop app so the new account becomes effective immediately. On Windows, the tray app updates auth state, syncs Codex global state, and backs up or restores Codex Desktop session state during restart.</p>
             </details>
             <details>
               <summary>Does CodexControl upload tokens, account homes, or stored snapshots?</summary>

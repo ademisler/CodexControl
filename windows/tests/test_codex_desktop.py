@@ -26,6 +26,34 @@ class CodexDesktopTests(unittest.TestCase):
         self.assertIn("Start-Process -FilePath $launcherPath", script)
         self.assertIn("Start-Sleep -Milliseconds 1250", script)
 
+    def test_build_restart_script_includes_desktop_session_sync(self) -> None:
+        script = build_restart_script(
+            0.5,
+            session_root=Path("C:/Users/test/AppData/Local/Packages/OpenAI.Codex_test/LocalCache/Roaming/Codex"),
+            backup_destination=Path("C:/Users/test/AppData/Roaming/CodexControl/managed-homes/current/desktop-session"),
+            restore_source=Path("C:/Users/test/AppData/Roaming/CodexControl/managed-homes/target/desktop-session"),
+        )
+
+        self.assertIn(
+            "$sessionRoot = 'C:\\Users\\test\\AppData\\Local\\Packages\\OpenAI.Codex_test\\LocalCache\\Roaming\\Codex'",
+            script,
+        )
+        self.assertIn(
+            "$backupDestination = 'C:\\Users\\test\\AppData\\Roaming\\CodexControl\\managed-homes\\current\\desktop-session'",
+            script,
+        )
+        self.assertIn(
+            "$restoreSource = 'C:\\Users\\test\\AppData\\Roaming\\CodexControl\\managed-homes\\target\\desktop-session'",
+            script,
+        )
+        self.assertIn("function Sync-DesktopSessionState()", script)
+        self.assertIn("Copy-SessionEntry $sessionRoot $backupDestination $relativePath", script)
+        self.assertIn("Copy-SessionEntry $restoreSource $sessionRoot $relativePath", script)
+        self.assertIn("Clear-SessionEntry $sessionRoot $relativePath", script)
+        self.assertIn("Restore source is missing; leaving the current desktop session in place", script)
+        self.assertIn("Failed to back up session entry", script)
+        self.assertIn("Failed to restore session entry", script)
+
     def test_encode_powershell_script_round_trips_utf16le(self) -> None:
         script = "Start-Process -FilePath 'Codex.exe'"
 

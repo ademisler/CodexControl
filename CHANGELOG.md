@@ -6,6 +6,24 @@ The format is based on Keep a Changelog and this project uses Semantic Versionin
 
 ## [Unreleased]
 
+## [1.1.3] - 2026-04-23
+
+### Added
+
+- Windows account switching now syncs `.codex-global-state.json` and `.codex-global-state.json.bak` creator IDs when replacing the active account
+- Windows restart flow now backs up and restores Codex Desktop MSIX session state under `%LOCALAPPDATA%\Packages\OpenAI.Codex*`
+- Regression coverage for Windows account switching, global state rewrites, and desktop session handoff
+- Windows account-switching fix notes under `windows/ACCOUNT_SWITCH_FIX.md`
+
+### Changed
+
+- Replaced the repository Windows implementation with the validated fixed Windows source from the working build
+- Updated release metadata, landing page references, and documentation for `1.1.3`
+
+### Fixed
+
+- Windows account switching after recent Codex Desktop updates, where copying only `auth.json` could leave Codex Desktop on a stale session or login screen
+
 ## [1.1.2] - 2026-04-19
 
 ### Fixed

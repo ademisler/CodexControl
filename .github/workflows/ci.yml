@@ -36,6 +36,8 @@ jobs:
           test -f site/index.html
           test -f site/styles.css
           test -f site/og-card.html
+          test -f site/releases/v1.1.3.md
+          test -f site/releases/v1.1.2.md
           test -f site/releases/v1.1.1.md
           test -f site/releases/v1.1.0.md
           test -f site/sitemap.xml
